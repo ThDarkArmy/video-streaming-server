@@ -5,10 +5,15 @@ const path = require('path')
 const fs = require('fs-extra')
 const { getVideoDurationInSeconds } = require('get-video-duration')
 const {videoSchema} = require('../helpers/validationSchema')
-const { create } = require('../models/Video')
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfmpegPath(ffmpegPath);
+const extractFrames = require('ffmpeg-extract-frames')
+ 
 
 
 const uploadPath = './videos/'; // Register the upload path
+const thumbnailsPath = './thumbnails/';
 fs.ensureDir(uploadPath); // Make sure that the upload path exists
 
 const router = express.Router()
@@ -84,14 +89,23 @@ router.post('/video/:id', async (req, res, next)=>{
                         console.log(`Upload of '${filename}' finished`);
                         const {size} = fs.statSync(path.join(uploadPath, filename))
                         var duration = await getVideoDurationInSeconds(path.join(uploadPath, filename))
-                        //var video = await Video.findById(req.params.id)
+
+                        // generating screenshots of video
+                        await extractFrames({
+                            input: path.join(uploadPath, filename),
+                            output: thumbnailsPath + filename + '.jpg',
+                            offsets: [7000]
+                          })
                         
+                        // creating a new video collection
                         var newVideo = new Video({
                             _id: video._id,
                             title: video.title,
                             description: video.description,
                             category: video.category,
                             path: path.join(uploadPath, filename),
+                            streamingPath: process.env.BASE_URL+"/videostream/"+video._id,
+                            thumbnailPath: process.env.BASE_URL + thumbnailsPath + filename + '.jpg',
                             size: (size/(1024*1024)).toFixed(2),
                             duration: duration,
                             mimeType: mimetype
@@ -120,8 +134,7 @@ router.post('/video/:id', async (req, res, next)=>{
                 })
             })
         }else{
-            throw createError.BadRequest("Please attach a video file.")
-
+            throw createError.BadRequest("Please attach a video file.");
         }
 
     }catch(error){
@@ -155,6 +168,17 @@ router.put('/:id', async(req, res, next)=>{
         next(error)
     }
 })
+
+// update thumbnail of a video to server
+router.patch('/update-thumbnail/:id', (req, res, next)=>{
+    try{
+
+    }catch(err){
+        next(err)
+    }
+})
+
+
 
 // delete an specific video by id from server
 router.delete('/:id', async(req, res, next)=>{

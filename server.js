@@ -34,7 +34,6 @@ app.get('/', (req, res, next)=>{
     }catch(error){
         next(error)
     }
-    
 })
  
 // routes

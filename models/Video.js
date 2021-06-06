@@ -10,11 +10,16 @@ const videoSchema = mongoose.Schema({
         type: String,
         required: true
     },
-
+    
     path: {
         type: String,
     },
-
+    thumbnailPath: {
+        type: String,
+    },
+    streamingPath: {
+        type: String,
+    },
     category: {
         type: String,
     },
@@ -33,8 +38,6 @@ const videoSchema = mongoose.Schema({
     duration: {
         type: Number
     },
-
-   
 
 }, {timestamps: true})
 

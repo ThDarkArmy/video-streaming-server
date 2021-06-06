@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "@hapi/joi": "^17.1.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
@@ -12,6 +13,8 @@
     "dotenv": "^9.0.1",
     "express": "^4.17.1",
     "expressjs": "^1.0.1",
+    "ffmpeg-extract-frames": "^2.0.2",
+    "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^10.0.0",
     "get-video-duration": "^3.0.2",
     "http-errors": "^1.8.0",
