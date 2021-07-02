@@ -105,7 +105,7 @@ router.post('/video/:id', async (req, res, next)=>{
                             category: video.category,
                             path: path.join(uploadPath, filename),
                             streamingPath: process.env.BASE_URL+"/videostream/"+video._id,
-                            thumbnailPath: process.env.BASE_URL + thumbnailsPath + filename + '.jpg',
+                            thumbnailPath: process.env.BASE_URL + "/thumbnails/" + filename + '.jpg',
                             size: (size/(1024*1024)).toFixed(2),
                             duration: duration,
                             mimeType: mimetype

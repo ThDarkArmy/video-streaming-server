@@ -30,7 +30,7 @@ app.use(busboy({
 
 app.get('/', (req, res, next)=>{
     try{
-        res.status(200).json("This is home page");
+        res.redirect("/videos/all");
     }catch(error){
         next(error)
     }
