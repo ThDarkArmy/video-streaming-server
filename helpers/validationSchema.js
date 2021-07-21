@@ -14,19 +14,23 @@ const loginSchema = Joi.object({
     password: Joi.string().min(6).required()
 })
 
-const videoSchema = Joi.object({
+const videoDescriptionSchema = Joi.object({
     title: Joi.string().min(5).required(),
     description: Joi.string().min(10).required(),
-    category: Joi.string().min(3).required()
+    category: Joi.string().min(3).required(),
+    ownerChannel: Joi.objectId().required(),
     
 })
 
+const videoSchema = Joi.object({
+
+})
 
 
 
 module.exports = {
     authSchema,
     loginSchema,
-    videoSchema
+    videoDescriptionSchema
 }
 

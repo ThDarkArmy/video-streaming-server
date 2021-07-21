@@ -4,7 +4,6 @@ const createError = require('http-errors')
 const busboy = require('connect-busboy')
 const cors = require('cors')
 
-
 const app = express()
 
 // dotenv
@@ -13,10 +12,9 @@ require('dotenv').config()
 // database connection
 require('./config/database')
 
+const PORT = process.env.PORT || 5678
 
-const PORT = process.env.PORT || 5000
-
-// middlewares
+// middleware
 app.use(express.static(__dirname))
 app.use(express.urlencoded({extended: false}))
 app.use(express.json())
@@ -39,9 +37,14 @@ app.get('/', (req, res, next)=>{
 // routes
 const videos = require('./routes/videos')
 const videostream = require('./routes/videostream')
+const users = require('./routes/users')
+const channels = require('./routes/channels')
 
 app.use('/videos', videos)
 app.use('/videostream', videostream)
+app.use('/users', users)
+app.use('/channels', channels)
+
 
 
 app.use(async(req, res, next)=>{

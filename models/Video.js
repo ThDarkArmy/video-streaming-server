@@ -1,17 +1,20 @@
 const mongoose = require('mongoose')
 
-const videoSchema = mongoose.Schema({
+const videoSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
+        trim: true
     },
 
     description: {
         type: String,
-        required: true
+        trim: true
     },
-    
-    path: {
+
+    category: {
+        type: String,
+    },
+    videoPath: {
         type: String,
     },
     thumbnailPath: {
@@ -20,11 +23,16 @@ const videoSchema = mongoose.Schema({
     streamingPath: {
         type: String,
     },
-    category: {
-        type: String,
-    },
 
     views: {
+        type: Number,
+        default: 0
+    },
+    likes: {
+        type: Number,
+        default: 0
+    },
+    dislikes: {
         type: Number,
         default: 0
     },
@@ -39,8 +47,21 @@ const videoSchema = mongoose.Schema({
         type: Number
     },
 
+    comments: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment"
+    },
+
+    ownerChannel : {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Channel"
+    }
+
 }, {timestamps: true})
 
 const Video = mongoose.model('Video', videoSchema)
 
 module.exports = Video
+
+
+

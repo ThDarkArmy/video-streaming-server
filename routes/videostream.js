@@ -9,11 +9,11 @@ router.get('/:id', async (req, res, next)=>{
     try{
         const video = await Video.findById(req.params.id);
         if(!video) throw createError.NotFound("Video with given id not found.")
-        if(fs.existsSync(video.path)){
+        if(fs.existsSync(video.videoPath)){
             const range = req.headers.range 
                        
             console.log(req.headers)
-            const videoSize = fs.statSync(video.path).size
+            const videoSize = fs.statSync(video.videoPath).size
 
             const CHUNK_SIZE = 10**6
             const start = Number(range.replace(/\D/g, ""))
@@ -37,7 +37,7 @@ router.get('/:id', async (req, res, next)=>{
             res.writeHead(206, headers);
 
             // create video read stream for this particular chunk
-            const videoStream = fs.createReadStream(video.path, { start, end });
+            const videoStream = fs.createReadStream(video.videoPath, { start, end });
 
             // Stream the video chunk to the client
             videoStream.pipe(res);
