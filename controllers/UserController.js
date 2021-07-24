@@ -1,5 +1,14 @@
 const User = require('../models/User')
 
+const getLOggedInUser = async (req, res, next) => {
+    try{
+
+
+    }catch (err){
+        next(err)
+    }
+}
+
 
 const createUser = async (req, res, next) => {
     try{

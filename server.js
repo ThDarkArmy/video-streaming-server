@@ -1,8 +1,8 @@
-const express = require('express')
-const morgan = require('morgan')
-const createError = require('http-errors')
-const busboy = require('connect-busboy')
-const cors = require('cors')
+import express from 'express';
+import morgan from 'morgan'
+import createError from 'http-errors'
+import busboy from 'connect-busboy'
+import cors from 'cors'
 
 const app = express()
 

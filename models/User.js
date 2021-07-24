@@ -1,6 +1,12 @@
-const mongoose = require("mongoose")
+import { Schema, model } from "mongoose"
+import { hash, compare } from 'bcryptjs'
+import { sign } from 'jsonwebtoken'
+import { randomBytes } from 'crypto'
+import { SECRET, DEFAULT_PROFILE_IMAGE_PATH } from "../constants";
+import { pick } from 'lodash'
 
-const userSchema = new mongoose.Schema({
+
+const UserSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -17,17 +23,71 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: null
     },
+    role: {
+        type: String,
+        default: "user",
+        enum: ["user", "admin", "superadmin"]
+    },
     profileImagePath:{
         type: String,
-        default: process.env.defaultProfileImagePath
+        default: DEFAULT_PROFILE_IMAGE_PATH
+    },
+    verified:{
+        type: Boolean,
+        default: false
+    },
+    verificationCode:{
+        type: String,
+        required: false
+    },
+    resetPasswordToken:{
+        type: String,
+        required: false
+    },
+    resetPasswordTokenExpiresIn:{
+        type: Date,
+        required: false
     },
     channel: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Channel"
     }
 
 }, { timestamps: true})
 
-const User = mongoose.model("User", userSchema)
+UserSchema.pre('save', async function(next){
+    let user = this
+    if(!user.isModified('password')) return next()
+    user.password = await hash(user.password, 10)
+    next()
+})
 
-module.exports = User
+UserSchema.methods.comparePassword = async function(password,){
+    return await compare(password, this.password)
+}
+
+UserSchema.methods.generateJwt = async function(){
+    let payload = {
+        id: this._id,
+        name: this.name,
+        email: this.email,
+        role: this.role,
+    }
+
+    return sign(payload, SECRET, {expiresIn: '1 day'})
+}
+
+UserSchema.methods.generatePasswordResetToken = function(){
+    this.resetPasswordTokenExpiresIn = Date.now() + 36000000
+    this.resetPasswordToken = randomBytes(20).toString('hex')
+}
+
+UserSchema.methods.getUserInfo = function(){
+    return pick(this, ["_id", "name", "email"])
+}
+
+
+
+export default model("User", UserSchema)
+
+

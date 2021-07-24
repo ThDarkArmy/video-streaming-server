@@ -1,10 +1,11 @@
-const e = require('express')
 const express = require('express')
-const fs = require('fs')
 const router = express.Router()
+const fs = require('fs')
 const createError = require('http-errors')
 const Video = require('../models/Video')
 
+
+// route to stream the video
 router.get('/:id', async (req, res, next)=>{
     try{
         const video = await Video.findById(req.params.id);
@@ -17,7 +18,6 @@ router.get('/:id', async (req, res, next)=>{
 
             const CHUNK_SIZE = 10**6
             const start = Number(range.replace(/\D/g, ""))
-            
             
             const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
 
