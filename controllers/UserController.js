@@ -1,8 +1,7 @@
 const User = require('../models/User')
 
-const getLOggedInUser = async (req, res, next) => {
+export const getLoggedInUser = async (req, res, next) => {
     try{
-
 
     }catch (err){
         next(err)
@@ -10,7 +9,7 @@ const getLOggedInUser = async (req, res, next) => {
 }
 
 
-const createUser = async (req, res, next) => {
+export const createUser = async (req, res, next) => {
     try{
         const {name, email, password} = req.body;
 
@@ -26,6 +25,16 @@ const createUser = async (req, res, next) => {
     }
 }
 
-module.exports = {
-    createUser,
+export const deleteAllUser = async (req, res, next)=>{
+    try{
+        await User.remove({})
+        res.status(200).json({
+            success: true,
+            message: "All the users got deleted"
+        })
+
+    }catch (error) {
+        next(error)
+    }
 }
+

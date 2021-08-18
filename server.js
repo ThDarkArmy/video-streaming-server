@@ -10,7 +10,7 @@ const app = express()
 require('dotenv').config()
 
 // database connection
-require('./config/database')
+import './config/database';
 
 const PORT = process.env.PORT || 5678
 
@@ -20,7 +20,7 @@ app.use(express.urlencoded({extended: false}))
 app.use(express.json())
 app.use(cors())
 
-app.use(morgan('dev'))
+app.use(morgan('combined'))
 app.use(busboy({
     highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
 })); // busboy middle-ware
@@ -35,15 +35,17 @@ app.get('/', (req, res, next)=>{
 })
  
 // routes
-const videos = require('./routes/videos')
-const videostream = require('./routes/videostream')
-const users = require('./routes/users')
-const channels = require('./routes/channels')
+import videos from './routes/videos';
+import videostream from './routes/videostream';
+import users from './routes/users';
+import channels from './routes/channels';
+import auth from "./routes/auth";
 
 app.use('/videos', videos)
 app.use('/videostream', videostream)
 app.use('/users', users)
 app.use('/channels', channels)
+app.use('/auth', auth)
 
 
 
@@ -53,11 +55,10 @@ app.use(async(req, res, next)=>{
 
 app.use((err, req, res, next)=>{
     res.status(err.status || 500)
-    res.send({
-        error: {
-            status: err.status || 500,
-            msg: err.message
-        }
+    res.json({
+            success: false,
+            message: err.message,
+            error: err
     })
 })
 

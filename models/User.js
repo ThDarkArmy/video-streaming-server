@@ -38,7 +38,13 @@ const UserSchema = new Schema({
     },
     verificationCode:{
         type: String,
-        required: false
+        required: false,
+        default: undefined
+    },
+    resetPassword: {
+        type: String,
+        required: false,
+        default: undefined
     },
     resetPasswordToken:{
         type: String,
@@ -62,11 +68,12 @@ UserSchema.pre('save', async function(next){
     next()
 })
 
-UserSchema.methods.comparePassword = async function(password,){
+UserSchema.methods.comparePassword = async function(password){
     return await compare(password, this.password)
 }
 
 UserSchema.methods.generateJwt = async function(){
+    console.log("SECRET", SECRET)
     let payload = {
         id: this._id,
         name: this.name,
@@ -83,7 +90,7 @@ UserSchema.methods.generatePasswordResetToken = function(){
 }
 
 UserSchema.methods.getUserInfo = function(){
-    return pick(this, ["_id", "name", "email"])
+    return pick(this, ["_id", "name", "email", "role"])
 }
 
 

@@ -1,19 +1,21 @@
-const nodemailer = require('nodemailer')
+import {createTransport } from 'nodemailer';
+import { EMAIL, PASSWORD} from "../constants";
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp.office365.com',
-    port: 587,
-    secure: false,
+
+const transporter = createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD
+        user: EMAIL,
+        pass: PASSWORD
     },
     tls: {
         ciphers: 'SSLv3'
     }
 })
 
-class SendMail{
+class MailSender{
     constructor(to, subject, text){
         this.to = to
         this.subject = subject
@@ -27,6 +29,8 @@ class SendMail{
             subject: this.subject,
             html: this.text
         }
+
+        console.log(mailOptions, PASSWORD)
         transporter.sendMail(mailOptions, (err, info)=>{
             if(err){
                 console.log(err)
@@ -42,7 +46,7 @@ class SendMail{
 
 
 
-module.exports = SendMail;
+export default MailSender;
 
-// const mail = new SendMail('jaccobrths@gmail.com', 'subject', 'message from nodemailer');
+// const mail = new MailSender('jaccobrths@gmail.com', 'subject', 'message from nodemailer');
 // mail.sendMail();

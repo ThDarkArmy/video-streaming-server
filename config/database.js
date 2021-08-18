@@ -1,13 +1,13 @@
+import { MONGODB_URI } from '../constants'
 const mongoose = require('mongoose')
 
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(MONGODB_URI, {
     useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(()=> console.log("Connected to the database."))
 .catch((err)=> console.log("Error in connecting to database", err))
-
 
 
 mongoose.connection.on('connected', ()=>{
