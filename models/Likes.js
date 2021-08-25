@@ -14,7 +14,7 @@ const likesSchema = new mongoose.Schema({
         ref: "Video"
     },
 
-    viewer: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }

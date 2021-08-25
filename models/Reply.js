@@ -1,17 +1,17 @@
 const mongoose = require('mongoose')
 
 const replySchema = new mongoose.Schema({
-    text: {
+    replyText: {
         type: String,
         required: true,
         trim: true
     },
 
-    onComment: {
+    comment: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'
     },
-    replier: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }

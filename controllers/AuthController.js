@@ -5,7 +5,6 @@ import MailSender from "../utils/MailSender";
 import { BASE_URL} from "../constants";
 
 
-
 // register user
 export const register = async (req, res, next) => {
     try{

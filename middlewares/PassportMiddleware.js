@@ -13,7 +13,7 @@ const options = {
 passport.use(new Strategy(options, async ({id}, done)=>{
     try{
         let user = await User.findById(id)
-        if(!user) throw createError.NOTFOUND()
+        if(!user) throw createError.NOTFOUND("User not found.")
         return done(null, user.getUserInfo())
 
     }catch (error){
@@ -21,6 +21,6 @@ passport.use(new Strategy(options, async ({id}, done)=>{
     }
 }))
 
-export const authenticateUser = passport.authenticate("jwt", {"session": false});
+export const AuthenticateUser = passport.authenticate("jwt", {"session": false});
 
 

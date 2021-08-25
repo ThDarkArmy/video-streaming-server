@@ -1,10 +1,17 @@
-const express = require('express')
-const router = express.Router()
+import {Router} from 'express'
+const router = Router()
 
-const { createChannel, getAllChannels, getMyChannel } = require('../controllers/ChannelController')
+import {AuthenticateUser} from "../middlewares/PassportMiddleware";
+import { channelValidation } from "../validators/ChannelValidator";
+import ValidationMiddleware from "../middlewares/ValidatorMiddleware";
+
+import { createChannel,getChannelById, getAllChannels, getMyChannel, updateChannel, deleteChannel } from '../controllers/ChannelController'
 
 router.get('/all', getAllChannels)
-router.get('/myChannel', getMyChannel)
-router.post('/create', createChannel)
+router.get('/myChannel',AuthenticateUser, getMyChannel)
+router.get("/byId/:id", getChannelById)
+router.post('/',AuthenticateUser, channelValidation, ValidationMiddleware, createChannel)
+router.put("/",AuthenticateUser, channelValidation, ValidationMiddleware, updateChannel)
+router.delete("/", AuthenticateUser, deleteChannel)
 
-module.exports = router
+export default router

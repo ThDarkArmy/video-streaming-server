@@ -40,12 +40,16 @@ import videostream from './routes/videostream';
 import users from './routes/users';
 import channels from './routes/channels';
 import auth from "./routes/auth";
+import comments from "./routes/comments";
+import replies from "./routes/replies";
 
 app.use('/videos', videos)
 app.use('/videostream', videostream)
 app.use('/users', users)
 app.use('/channels', channels)
 app.use('/auth', auth)
+app.use("/comments", comments)
+app.use("/replies", replies)
 
 
 
