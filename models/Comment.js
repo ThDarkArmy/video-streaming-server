@@ -1,25 +1,25 @@
-const mongoose = require("mongoose")
+import{model, Schema, } from 'mongoose'
 
-const commentSchema = new mongoose.Schema({
+const commentSchema = new Schema({
     commentText: {
         type: String,
         required: true,
         trim: true
     },
     video: {
-        type: mongoose.schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Video'
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User"
     },
     replies: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Reply"
     }]
 }, {timestamps: true})
 
-const Comment = mongoose.model("Comment", commentSchema)
+const Comment = model("Comment", commentSchema)
 
-module.exports = Comment
+export default Comment

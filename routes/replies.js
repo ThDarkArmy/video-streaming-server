@@ -1,5 +1,5 @@
 import { Router } from "express"
-import {AuthenticateUser} from "../middlewares/PassportMiddleware";
+import {AuthenticateUser} from "../middlewares/AuthMiddleware";
 import { replyValidator } from "../validators/ReplyValidator";
 import { getRepliesByComment, getAllReplies, postReplyOnComment, updateReplyById, deleteAllRepliesByComment, deleteReplyById} from "../controllers/ReplyController"
 

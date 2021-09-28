@@ -1,5 +1,6 @@
 import createError from 'http-errors'
 import Channel from '../models/Channel'
+import Video from "../models/Video";
 
 // only for admins
 export const getAllChannels = async(req, res, next) => {
@@ -15,7 +16,8 @@ export const getAllChannels = async(req, res, next) => {
 // find my channel
 export const getMyChannel = async(req, res, next) => {
     try{
-        const channel = await Channel.find({owner: req.user.id})
+
+        const channel = await Channel.findOne({owner: req.user._id})
 
         if(!channel) throw createError.NotFound("No channel exist of the logged in user.")
 
@@ -48,14 +50,35 @@ export const getChannelById = async(req, res, next) => {
     }
 }
 
+// get a channel similar to search query
+export const getChannelsByName = async(req, res, next) => {
+    try{
+        const channels = await Channel.find({name: req.params.name})
+
+        res.status(200).json({
+            success: true,
+            message: "Requested channel found",
+            channels: channels
+        })
+
+    }catch (err) {
+        next(err)
+    }
+}
 
 // create a channel
 export const createChannel = async (req, res, next) => {
     try{
-        const {owner, name, description} = req.body;
-
+        const {name, description} = req.body;
+        const owner = req.user.id
+        const channel = await Channel.findOne({owner: owner})
+        if(channel) throw createError.BadRequest("Channel already exist for the user.")
         const createdChannel = await new Channel({owner, name, description}).save()
-        res.status(201).json(createdChannel)
+        res.status(201).json({
+            success: true,
+            message: "Channel created successfully",
+            channel: createdChannel
+        })
     }catch(err){
         next(err)
     }
@@ -65,13 +88,14 @@ export const createChannel = async (req, res, next) => {
 export const updateChannel = async (req, res, next) => {
     try{
         const { name, description} = req.body;
-        let channel = await Channel.find({owner: req.user.id})
+        let channel = await Channel.findOne({owner: req.user._id})
 
         if(!channel) throw createError.NotFound("Channel with given id does not exist.")
         channel.name = name;
-        channel.descritpion = description;
+        channel.description = description;
         const updatedChannel = await channel.save()
-
+        console.log(channel)
+        console.log(updatedChannel)
         res.status(201).json({
             success: true,
             message: "Channel updated successfully.",
@@ -82,17 +106,36 @@ export const updateChannel = async (req, res, next) => {
     }
 }
 
-// delete channel by id
+
+// delete my channel
 export const deleteChannel = async (req, res, next)=>{
     try{
-        const channel = await Channel.find({owner: req.user.id})
-
+        const channel = await Channel.findOne({owner: req.user._id})
+        console.log(channel)
         if(!channel) throw createError.NotFound("Channel with given id does not exist.")
-        const deletedChannel = await channel.findByIdAndDelete(req.params.id)
+        const deletedVideos = await Video.deleteMany({channel: channel._id})
+        const deletedChannel = await Channel.findByIdAndDelete(channel._id)
 
         res.status(201).json({
             success: true,
-            message: "Channel deleted successfully."
+            message: "Channel deleted successfully.",
+            response: {deletedChannel, deletedVideos}
+        })
+    }catch(err){
+        next(err)
+    }
+}
+
+// delete all channels , only for admins
+export const deleteAllChannels = async (req, res, next)=>{
+    try{
+
+        const deletedChannels = await Channel.deleteMany({})
+
+        res.status(201).json({
+            success: true,
+            message: "All channels deleted successfully.",
+            response: deletedChannels
         })
     }catch(err){
         next(err)

@@ -42,6 +42,8 @@ import channels from './routes/channels';
 import auth from "./routes/auth";
 import comments from "./routes/comments";
 import replies from "./routes/replies";
+import subscription from "./routes/subscription";
+import playlist from "./routes/playlist";
 
 app.use('/videos', videos)
 app.use('/videostream', videostream)
@@ -50,6 +52,8 @@ app.use('/channels', channels)
 app.use('/auth', auth)
 app.use("/comments", comments)
 app.use("/replies", replies)
+app.use("/subscriptions", subscription)
+app.use("/playlists", playlist)
 
 
 
@@ -58,8 +62,7 @@ app.use(async(req, res, next)=>{
 })
 
 app.use((err, req, res, next)=>{
-    res.status(err.status || 500)
-    res.json({
+    res.status(err.status|| 500).json({
             success: false,
             message: err.message,
             error: err

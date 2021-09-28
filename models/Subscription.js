@@ -1,21 +1,21 @@
-const mongoose = require('mongoose');
+import { Schema, model} from "mongoose";
 
-const subscriptionSchema = new mongoose.Schema({
-    subscribed:{
+const subscriptionSchema = new Schema({
+    notification: {
         type: Boolean,
         default: false
     },
     channel: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Channel"
     },
 
     subscriber: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User"
     }
 }, {timestamps: true})
 
-const Subscription = mongoose.model('Subscription', subscriptionSchema)
+const Subscription = model('Subscription', subscriptionSchema)
 
-module.exports = Subscription;
+export default Subscription;

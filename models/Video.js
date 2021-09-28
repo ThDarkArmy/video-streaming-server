@@ -17,13 +17,15 @@ const videoSchema = new mongoose.Schema({
     videoPath: {
         type: String,
     },
+    videoStreamingPath: {
+        type: String,
+    },
     thumbnailPath: {
         type: String,
     },
-    streamingPath: {
-        type: String,
+    thumbnailStreamingPath: {
+        type: String
     },
-
     views: {
         type: Number,
         default: 0
@@ -52,7 +54,7 @@ const videoSchema = new mongoose.Schema({
         ref: "Comment"
     },
 
-    ownerChannel : {
+    channel : {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Channel"
     }
@@ -61,7 +63,7 @@ const videoSchema = new mongoose.Schema({
 
 const Video = mongoose.model('Video', videoSchema)
 
-module.exports = Video
+export default Video
 
 
 

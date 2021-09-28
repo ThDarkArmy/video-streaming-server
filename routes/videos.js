@@ -1,5 +1,8 @@
-const express = require('express')
-const Video = require('../models/Video')
+import { Router } from 'express'
+import {videoValidation} from "../validators/VideoValidator";
+import {AuthenticateUser} from "../middlewares/AuthMiddleware";
+import ValidationMiddleware from "../middlewares/ValidatorMiddleware";
+import {assertRole} from "../middlewares/AuthMiddleware";
 
 
 const { getAllVideos,
@@ -12,35 +15,47 @@ const { getAllVideos,
     createVideo,
     updateVideoDescription,
     updateThumbnail,
-    deleteVideo } = require('../controllers/VideoContoller')
+    deleteVideo,
+    deleteAllVideos
+    } = require('../controllers/VideoContoller')
 
 
-const router = express.Router()
+const router = Router()
 
 // get all videos
-router.get('/all', getAllVideos)
+router.get(['/','/all'], AuthenticateUser, assertRole(['ADMIN','SUPERADMIN']), getAllVideos)
 
 // get a specific video by id
-router.get('/byId/:id', getVideoById)
+router.get('/byId/:id',assertRole(['ADMIN', 'SUPERADMIN']), AuthenticateUser, getVideoById)
+
+// get videos by channel
+router.get("/byChannel/:id", getAllVideosByChannel)
+
+// get videos by playlist
+router.get("/byPlaylist/:id", getAllVideosByPlaylist)
 
 // upload video to server
-router.post('/video', createVideo)
+router.post('/video', AuthenticateUser, createVideo)
 
 // upload video-description to server
-router.post('/description/:id', createVideoDescription)
-
+router.post('/description/:id', AuthenticateUser, videoValidation, ValidationMiddleware, createVideoDescription)
 
 // update a video on server
-router.put('/:id', updateVideoDescription)
+router.put('/:id',AuthenticateUser, videoValidation, ValidationMiddleware, updateVideoDescription)
 
 // update thumbnail of a video to server
-router.patch('/update-thumbnail/:id', updateThumbnail)
+router.patch('/update-thumbnail/:id', AuthenticateUser, updateThumbnail)
 
 // delete an specific video by id from server
-router.delete('/:id', deleteVideo)
+router.delete('/:id',AuthenticateUser, deleteVideo)
 
 
-module.exports = router
+// delete all videos
+router.delete("/", AuthenticateUser, assertRole(["SUPERADMIN"]), deleteAllVideos)
+
+
+export default router
+
 
 
 

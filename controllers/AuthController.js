@@ -8,15 +8,17 @@ import { BASE_URL} from "../constants";
 // register user
 export const register = async (req, res, next) => {
     try{
-        const { name, email, password } = req.body;
+        const { name, email, password, roles } = req.body;
         let user = await User.findOne({email:email})
 
-        if(user) throw createError.BadRequest("Email already exists")
+        if(user && user.verified) throw createError.BadRequest("Email already exists")
+        else if(user) await User.deleteMany({email: user.email})
 
         user = new User({
             name,
             email,
             password,
+            roles:roles?roles:["USER"],
             verificationCode: randomBytes(20).toString('hex')
         })
 
@@ -57,7 +59,6 @@ export const verifyAccount = async (req, res, next)=>{
             message: "Email verified, now you can login"
         })
 
-
     }catch(error){
         next(error)
     }
@@ -70,9 +71,11 @@ export const login = async (req, res, next) => {
         const { email, password } = req.body;
         const user = await User.findOne({email: email})
 
-        if(!user) throw createError.NOTFOUND("User with given email does not exists.")
+        if(!user) throw createError.NotFound("User with given email does not exists.")
 
         if(!(await user.comparePassword(password))) throw createError.BadRequest("Incorrect password")
+
+        if(!user.verified) throw createError.BadRequest("User is not verified.")
 
         let token = await user.generateJwt()
 
@@ -148,7 +151,7 @@ export const verifyPasswordReset = async (req, res, next) =>{
         user.resetPassword = undefined
         user.resetPasswordTokenExpiresIn=undefined
 
-        user.save()
+        await user.save()
 
         res.status(200).json({
             success: true,

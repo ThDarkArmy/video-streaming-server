@@ -1,13 +1,14 @@
-const createError = require('http-errors')
-const path = require('path')
-const fs = require('fs-extra')
-const { videoDescriptionSchema } = require('../helpers/validationSchema')
-const { getVideoDurationInSeconds } = require('get-video-duration')
-const { videoSchema } = require('../helpers/validationSchema')
+import createError from 'http-errors'
+import path from 'path'
+import fs from 'fs-extra'
+import { getVideoDurationInSeconds } from 'get-video-duration'
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-const ffmpeg = require('fluent-ffmpeg');
+import ffmpeg from 'fluent-ffmpeg';
 ffmpeg.setFfmpegPath(ffmpegPath);
-const extractFrames = require('ffmpeg-extract-frames')
+import extractFrames from 'ffmpeg-extract-frames'
+import { randomBytes } from 'crypto'
+import { BASE_URL } from "../constants";
+
 
 
 const uploadPath = './videos/'; // Register the upload path
@@ -15,14 +16,16 @@ const thumbnailsPath = './thumbnails/';
 fs.ensureDir(uploadPath); // Make sure that the upload path exists
 
 
-const Video = require('../models/Video')
-const Channel = require('../models/Channel')
-const Playlist = require('../models/Playlist')
-const User = require('../models/User')
+import Video from '../models/Video'
+import Channel from '../models/Channel'
+import Playlist from '../models/Playlist'
+import User from '../models/User'
 
 
-const getAllVideos = async (req, res, next)=> {
+// get all videos, only for admins and super admins
+export const getAllVideos = async (req, res, next)=> {
     try {
+        console.log(req.user)
         const videos = await Video.find({}).select("-__v")
         res.status(200).json({videos})
 
@@ -31,35 +34,67 @@ const getAllVideos = async (req, res, next)=> {
     }
 }
 
-const getAllVideosByChannel = (req, res, next) => {
+
+// get all videos by channel
+export const getAllVideosByChannel = async (req, res, next) => {
+    try{
+        const videos = await Video.find({channel: req.params.id})
+        res.status(200).json({
+            success: true,
+            message: "Videos on this channel",
+            videos: videos
+        })
+    }catch(error){
+        next(error)
+    }
+}
+
+
+// get all videos by playlist
+export const getAllVideosByPlaylist = async (req, res, next) => {
+    try{
+        const videos = await Video.find({playlist: req.params.id})
+        res.status(200).json({
+            success: true,
+            message: "Videos on this channel",
+            videos: videos
+        })
+    }catch(error){
+        next(error)
+    }
+}
+
+
+// get all videos by category
+export const getAllVideosByCategory = (req, res, next) => {
 
 }
 
- const getAllVideosByPlaylist = (req, res, next) => {
 
-}
-
-const getAllVideosByCategory = (req, res, next) => {
-
-}
-
-const getAllVideosBySearchQuery = (req, res, next) =>{
+// get all videos by search query
+export const getAllVideosBySearchQuery = (req, res, next) =>{
 
 }
 
 
-const getVideoById = async (req, res, next)=>{
+// get a video by id, only for admins and super admins
+export const getVideoById = async (req, res, next)=>{
     try {
         const video = await Video.findById(req.params.id).select("-__v")
-        res.status(200).json(video)
+        res.status(200).json({
+            success: true,
+            message: "Video",
+            video:video
+        })
 
     } catch (error) {
         next(error)
     }
 }
 
+
 // creating a video or uploading a video file
-const createVideo = async(req, res, next) => {
+export const createVideo = async(req, res, next) => {
     try{
         req.pipe(req.busboy); // Pipe it through busboy
 
@@ -69,6 +104,7 @@ const createVideo = async(req, res, next) => {
 
                 if(mt[0]==='video') {
                     console.log(`Upload of '${filename}' started`);
+                    filename = randomBytes(20).toString('hex') +"." +filename.split('.')[filename.split().length]
 
                     // Create a write stream of the new file
                     const fstream = fs.createWriteStream(path.join(uploadPath, filename));
@@ -86,14 +122,19 @@ const createVideo = async(req, res, next) => {
 
                         const savedVideo = await newVideo.save();
 
-                        res.status(201).json({"msg": "Video uploaded successfully.", "id": savedVideo.id})
+                        res.status(201).json({
+                            "success": true,
+                            "message": "Video uploaded successfully.",
+                            video: savedVideo
+                        })
                     });
 
                 }else{
                     res.status(500).json({
-                        "error": {
-                            "status": 500,
-                            "msg": "File format is not video."
+                        "success": false,
+                        "message": "Error while uploading video",
+                        "error":{
+                            "error": "File format is not a valid video format."
                         }
                     })
                 }
@@ -101,10 +142,9 @@ const createVideo = async(req, res, next) => {
 
             req.busboy.on('error', (e)=>{
                 res.status(500).json({
-                    "error": {
-                        "status": 500,
-                        "msg": "Error occurred while uploading file."
-                    }
+                    "success": false,
+                    "message": "Error while uploading video",
+                    "error":e
                 })
             })
         }else{
@@ -114,28 +154,36 @@ const createVideo = async(req, res, next) => {
     }catch (err){
         next(err)
     }
-
 }
 
+
 // updating the video with its description
-const createVideoDescription = async (req, res, next) => {
+export const createVideoDescription = async (req, res, next) => {
     try{
 
-        const validate = await videoDescriptionSchema.validateAsync(req.body)
-        const {title, description, category, ownerChannel} = req.body;
+        const {title, description, category} = req.body;
+        const channel = await Channel.findOne({owner: req.user._id})
 
+        if(!channel) throw createError.NotFound("Channel does not exist.");
         const video = await Video.findById(req.params.id)
 
-        if(!video) throw createError.NotFound("Video not found.");
 
-        const {size} = fs.statSync(video.videoPath)
-        const duration = await getVideoDurationInSeconds(video.videoPath)
-        const filename = video.videoPath.split('\\')[1]
+        if(!video) throw createError.NotFound("Video not found.");
+        channel.videos.push(video._id)
+        await channel.save()
+        const videoPath = path.join(uploadPath, video._id+"_video."+video.videoPath.split(".")[1])
+        const thumbnailPath = path.join(thumbnailsPath, video._id+'_thumbnail.jpg')
+
+        await fs.renameSync(video.videoPath, videoPath)
+
+        const {size} = await fs.statSync(videoPath)
+        const duration = await getVideoDurationInSeconds(videoPath)
+
 
         // generating screenshots of video
         await extractFrames({
-            input: video.videoPath,
-            output: thumbnailsPath + filename.split('.')[0] + '.jpg',
+            input: videoPath,
+            output: thumbnailPath,
             offsets: [7000]
         })
 
@@ -145,19 +193,23 @@ const createVideoDescription = async (req, res, next) => {
             title,
             description,
             category,
-            ownerChannel,
-            videoPath: video.videoPath,
-            streamingPath: process.env.BASE_URL+"/videostream/"+video._id,
-            thumbnailPath: process.env.BASE_URL + "/thumbnails/" + filename.split('.')[0] + '.jpg',
+            channel,
+            videoPath: videoPath,
+            videoStreamingPath: BASE_URL+"/videostream/"+video._id,
+            thumbnailPath: thumbnailPath,
+            thumbnailStreamingPath: BASE_URL + "/thumbnails/" + video._id + '_thumbnail.jpg',
             size: (size/(1024*1024)).toFixed(2),
             duration: duration,
             mimeType: video.mimeType
-
         });
 
         const savedVideo = await Video.findByIdAndUpdate(req.params.id, {$set: newVideo}, {new: true})
 
-        res.status(200).json(savedVideo)
+        res.status(200).json({
+            success: true,
+            message: "Video description uploaded successfully",
+            video: savedVideo
+        })
 
     }catch(error){
         next(error)
@@ -165,7 +217,8 @@ const createVideoDescription = async (req, res, next) => {
 }
 
 
-const updateVideoDescription = async(req, res, next)=>{
+// Update a video by id
+export const updateVideoDescription = async(req, res, next)=>{
     try{
         const {title, description, category} = req.body;
 
@@ -184,15 +237,63 @@ const updateVideoDescription = async(req, res, next)=>{
             type: video.type
         });
         const updatedVideo = await Video.findByIdAndUpdate(req.params.id, {$set: newVideo}, {new: true})
-        res.status(200).json({"msg": "Video updated successfully."})
+        res.status(200).json({
+            success: true,
+            "message": "Video updated successfully.",
+            video: updatedVideo
+        })
 
     }catch(error){
         next(error)
     }
 }
 
-const updateThumbnail = (req, res, next)=>{
+
+// updating the thumbnail of the video
+export const updateThumbnail = async (req, res, next)=>{
     try{
+        const video = await Video.findById(req.params.id)
+        if(!video) throw createError.NotFound("Video does not exist")
+
+        req.pipe(req.busboy)
+
+        if(req.busboy){
+            req.busboy.on('file', (fieldname, file, filename, encoding, mimetype)=>{
+                if(mimetype.split("/")[0]==="image"){
+
+                    filename = video._id+"_thumbnail.jpg"
+                    const fstream = fs.createWriteStream(path.join(thumbnailsPath, filename))
+                    console.log("Uploading started")
+                    file.pipe(fstream)
+
+                    fstream.on("close", async ()=>{
+                        res.status(201).json({
+                            success: true,
+                            message: "Thumbnail updated successfully",
+                            video: video
+                        })
+                    })
+
+                } else{
+                    return res.status(500).json({
+                        "success": false,
+                        "message": "Error while uploading thumbnail",
+                        "error":{
+                            "error": "File format is not a valid image format."
+                        }
+                    })
+                }
+            })
+            req.busboy.on('error', (e)=>{
+                return res.status(500).json({
+                    "success": false,
+                    "message": "Error while uploading video",
+                    "error":e
+                })
+            })
+        }else{
+            throw createError.BadRequest("Please attach a video file.");
+        }
 
     }catch(err){
         next(err)
@@ -200,30 +301,61 @@ const updateThumbnail = (req, res, next)=>{
 }
 
 
-const deleteVideo = async(req, res, next)=>{
+// delete a video by id
+export const deleteVideo = async(req, res, next)=>{
     try{
         let video = await Video.findById(req.params.id)
 
         if(!video) throw createError.NotFound("Video with given id not found.")
-        await fs.unlinkSync(video.path);
+        await fs.unlinkSync(video.videoPath);
+        await fs.unlinkSync(video.thumbnailPath);
 
-        var response = await Video.findByIdAndRemove(req.params.id.toString().trim())
-        res.status(200).json({"msg": "Video deleted successfully"})
+        let response = await Video.findByIdAndRemove(req.params.id.toString().trim())
+        res.status(200).json({
+            success: true,
+            "message": "Video deleted successfully",
+            response
+        })
     }catch(error){
         next(error)
     }
 }
 
-module.exports = {
-    getAllVideos,
-    getAllVideosByCategory,
-    getAllVideosByChannel,
-    getAllVideosByPlaylist,
-    getAllVideosBySearchQuery,
-    getVideoById,
-    createVideo,
-    createVideoDescription,
-    updateVideoDescription,
-    updateThumbnail,
-    deleteVideo
+
+
+// delete all videos, only for super admin
+export const deleteAllVideos = async (req, res, next)=>{
+    try{
+
+        console.log(req.user.roles)
+        let response = await Video.deleteMany({})
+
+        // deleting all videos
+        fs.readdir(uploadPath, (err, files)=>{
+            if(err) throw err
+            for(const file of files){
+                fs.unlink(path.join(uploadPath, file), err=>{
+                    if(err) throw err
+                })
+            }
+        })
+
+        // deleting all thumbnails
+        fs.readdir(thumbnailsPath, (err, files)=>{
+            if(err) throw err
+            for(const file of files){
+                fs.unlink(path.join(thumbnailsPath, file), err=>{
+                    if(err) throw err
+                })
+            }
+        })
+        res.status(200).json({
+            success: true,
+            message: "All videos deleted successfully",
+            response
+        })
+    }catch(error){
+        next(error)
+    }
 }
+

@@ -6,15 +6,15 @@ const playlistSchema = new mongoose.Schema({
         required: true
     },
 
-    ownerChannel: {
+    channel: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Channel'
     },
 
-    ownerUser: {
+    videos: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }
+        ref: 'Video'
+    }]
 }, {timestamps: true})
 
 const Playlist = mongoose.model('Playlist', playlistSchema)

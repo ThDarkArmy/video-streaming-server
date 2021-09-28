@@ -4,6 +4,7 @@ import { sign } from 'jsonwebtoken'
 import { randomBytes } from 'crypto'
 import { SECRET, DEFAULT_PROFILE_IMAGE_PATH } from "../constants";
 import { pick } from 'lodash'
+import fs from 'fs'
 
 
 const UserSchema = new Schema({
@@ -23,11 +24,11 @@ const UserSchema = new Schema({
         type: String,
         default: null
     },
-    role: {
+    roles: [{
         type: String,
-        default: "user",
-        enum: ["user", "admin", "superadmin"]
-    },
+        default: ["USER"],
+        enum: ["USER", "ADMIN", "SUPERADMIN"]
+    }],
     profileImagePath:{
         type: String,
         default: DEFAULT_PROFILE_IMAGE_PATH
@@ -56,7 +57,8 @@ const UserSchema = new Schema({
     },
     channel: {
         type: Schema.Types.ObjectId,
-        ref: "Channel"
+        ref: "Channel",
+        default: null
     }
 
 }, { timestamps: true})
@@ -73,15 +75,25 @@ UserSchema.methods.comparePassword = async function(password){
 }
 
 UserSchema.methods.generateJwt = async function(){
+    const PRIV_KEY = fs.readFileSync("\D:\\Node Js\\VideoStreamingServer\\crypto\\id_rsa_priv.pem", 'utf8')
+
     console.log("SECRET", SECRET)
     let payload = {
         id: this._id,
         name: this.name,
         email: this.email,
-        role: this.role,
+        roles: this.roles,
+    }
+    const options = {
+        expiresIn: '200h',
+        issuer: this.name,
+        audience: this._id.toString(),
+        algorithm: 'RS256'
     }
 
-    return sign(payload, SECRET, {expiresIn: '1 day'})
+    console.log("Options: ", options)
+
+    return sign(payload, PRIV_KEY, options)
 }
 
 UserSchema.methods.generatePasswordResetToken = function(){
@@ -90,9 +102,8 @@ UserSchema.methods.generatePasswordResetToken = function(){
 }
 
 UserSchema.methods.getUserInfo = function(){
-    return pick(this, ["_id", "name", "email", "role"])
+    return pick(this, ["_id", "name", "email", "roles"])
 }
-
 
 
 export default model("User", UserSchema)

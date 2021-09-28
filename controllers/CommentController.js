@@ -1,4 +1,5 @@
 import Comment from '../models/Comment'
+import Video from '../models/Video'
 import createError from 'http-errors'
 
 // find comment by id
@@ -19,7 +20,7 @@ export const getCommentById = async (req, res, next) => {
 // find comments by video
 export const getCommentByVideo = async (req, res, next) => {
     try{
-        const comments = await Comment.find({video: req.params.videoId})
+        const { comments } = await Video.findById(req.params.videoId).populate("Comment", "user commentText")
         res.status(200).json({
             success: true,
             message: "Comments on provided video",

@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { getCommentById, deleteCommentById, postComment, updateCommentById, getCommentByVideo} from '../controllers/CommentController'
 import { commentValidation } from "../validators/CommentValidator";
-import { AuthenticateUser } from "../middlewares/PassportMiddleware"
+import { AuthenticateUser } from "../middlewares/AuthMiddleware"
 
 const router = Router()
 

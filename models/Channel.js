@@ -1,15 +1,16 @@
-const mongoose = require('mongoose')
+import { Schema, model} from "mongoose";
 
-const channelSchema = new mongoose.Schema({
+const channelSchema = new Schema({
     name: {
         type: String,
         required: true,
     },
 
-    about: {
+    description: {
         type: String,
         default: ""
     },
+
     backgroundImagePath: {
         type: String,
         default: process.env.defaultImagePath
@@ -19,22 +20,26 @@ const channelSchema = new mongoose.Schema({
         default: 0
     },
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User"
     },
 
     playlists: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref:'Playlist'
     }],
 
     videos: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Video"
+    }],
+
+    subscription: [{
+        type: Schema.Types.ObjectId,
+        ref: "Subscription"
     }]
 
 }, {timestamps: true})
 
-const Channel = mongoose.model("Channel", channelSchema)
 
-module.exports = Channel;
+export default model("Channel", channelSchema)
