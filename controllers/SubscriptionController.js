@@ -22,7 +22,7 @@ export const subscribeOrUnsubscribe = async (req, res, next) => {
             subscribed = true
         }else{
             channel.numberOfSubscribers-=1
-            channel.subscription = channel.subscription.filter(subscriptionId => user.id===subscriptionId)
+            channel.subscription = channel.subscription.filter(subscriptionId => user.id!==subscriptionId)
             await Subscription.deleteOne({channel: channelId, subscriber: user.id})
         }
 

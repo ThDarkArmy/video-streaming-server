@@ -1,8 +1,8 @@
-const express = require('express')
-const router = express.Router()
-const fs = require('fs')
-const createError = require('http-errors')
-const Video = require('../models/Video')
+import {Router } from 'express';
+const router = Router()
+import fs from 'fs';
+import createError from 'http-errors'
+import Video from '../models/Video'
 
 
 // route to stream the video
@@ -12,8 +12,7 @@ router.get('/:id', async (req, res, next)=>{
         if(!video) throw createError.NotFound("Video with given id not found.")
         if(fs.existsSync(video.videoPath)){
             const range = req.headers.range 
-                       
-            console.log(req.headers)
+
             const videoSize = fs.statSync(video.videoPath).size
 
             const CHUNK_SIZE = 10**6
@@ -53,4 +52,4 @@ router.get('/:id', async (req, res, next)=>{
     }
 })
 
-module.exports = router
+export default router;

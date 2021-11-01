@@ -23,10 +23,10 @@ const { getAllVideos,
 const router = Router()
 
 // get all videos
-router.get(['/','/all'], AuthenticateUser, assertRole(['ADMIN','SUPERADMIN']), getAllVideos)
+router.get(['/','/all'], getAllVideos)
 
 // get a specific video by id
-router.get('/byId/:id',assertRole(['ADMIN', 'SUPERADMIN']), AuthenticateUser, getVideoById)
+router.get('/byId/:id', getVideoById)
 
 // get videos by channel
 router.get("/byChannel/:id", getAllVideosByChannel)

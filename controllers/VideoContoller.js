@@ -25,7 +25,6 @@ import User from '../models/User'
 // get all videos, only for admins and super admins
 export const getAllVideos = async (req, res, next)=> {
     try {
-        console.log(req.user)
         const videos = await Video.find({}).select("-__v")
         res.status(200).json({videos})
 
@@ -96,6 +95,8 @@ export const getVideoById = async (req, res, next)=>{
 // creating a video or uploading a video file
 export const createVideo = async(req, res, next) => {
     try{
+        const channel = await Channel.findOne({owner: req.user.id})
+        if(!channel) throw createError.NotFound("Channel does not exist.");
         req.pipe(req.busboy); // Pipe it through busboy
 
         if(req.busboy){
@@ -117,7 +118,8 @@ export const createVideo = async(req, res, next) => {
                         console.log(`Upload of '${filename}' finished`);
                         let newVideo = new Video({
                             videoPath: path.join(uploadPath, filename),
-                            mimeType: mimetype
+                            mimeType: mimetype,
+                            channel: channel
                         })
 
                         const savedVideo = await newVideo.save();
@@ -162,13 +164,14 @@ export const createVideoDescription = async (req, res, next) => {
     try{
 
         const {title, description, category} = req.body;
-        const channel = await Channel.findOne({owner: req.user._id})
 
-        if(!channel) throw createError.NotFound("Channel does not exist.");
         const video = await Video.findById(req.params.id)
 
 
         if(!video) throw createError.NotFound("Video not found.");
+        const channel = await Channel.findById(video.channel)
+
+        if(!channel) throw createError.NotFound("Channel does not exist.");
         channel.videos.push(video._id)
         await channel.save()
         const videoPath = path.join(uploadPath, video._id+"_video."+video.videoPath.split(".")[1])
@@ -239,7 +242,7 @@ export const updateVideoDescription = async(req, res, next)=>{
         const updatedVideo = await Video.findByIdAndUpdate(req.params.id, {$set: newVideo}, {new: true})
         res.status(200).json({
             success: true,
-            "message": "Video updated successfully.",
+            message: "Video updated successfully.",
             video: updatedVideo
         })
 

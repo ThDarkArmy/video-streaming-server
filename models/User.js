@@ -91,7 +91,6 @@ UserSchema.methods.generateJwt = async function(){
         algorithm: 'RS256'
     }
 
-    console.log("Options: ", options)
 
     return sign(payload, PRIV_KEY, options)
 }

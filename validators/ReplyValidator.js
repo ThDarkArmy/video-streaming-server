@@ -5,3 +5,4 @@ const comment = check("comment", "Comment id is not valid.").isLength({min:14, m
 
 
 export const replyValidator = [replyText, comment]
+export const onUpdateReplyValidator = [replyText]

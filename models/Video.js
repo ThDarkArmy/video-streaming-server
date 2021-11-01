@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+import {Schema, model} from "mongoose";
 
-const videoSchema = new mongoose.Schema({
+const videoSchema = new Schema({
     title: {
         type: String,
         trim: true
@@ -49,19 +49,19 @@ const videoSchema = new mongoose.Schema({
         type: Number
     },
 
-    comments: {
-        type: mongoose.Schema.Types.ObjectId,
+    comments: [{
+        type: Schema.Types.ObjectId,
         ref: "Comment"
-    },
+    }],
 
     channel : {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Channel"
     }
 
 }, {timestamps: true})
 
-const Video = mongoose.model('Video', videoSchema)
+const Video = model('Video', videoSchema)
 
 export default Video
 
