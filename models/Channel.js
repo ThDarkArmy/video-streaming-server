@@ -19,7 +19,7 @@ const channelSchema = new Schema({
         type: Number,
         default: 0
     },
-    owner: {
+    user: {
         type: Schema.Types.ObjectId,
         ref: "User"
     },

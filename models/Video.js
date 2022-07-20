@@ -13,7 +13,19 @@ const videoSchema = new Schema({
 
     category: {
         type: String,
+        default:"ENTERTAINMENT",
+        enum:["ENTERTAINMENT", "MUISC", "SPORTS", "GAMIMG", "MOVIES", "NEWS", "LIVE", "FASHION_AND_BEAUTY", "LEARNING", "SPOTLIGHT", "360_VIDEO"]
     },
+
+    subcategories: [{
+        type: String,
+        
+    }],
+
+    tags:[{
+        type: String
+    }],
+
     videoPath: {
         type: String,
     },

@@ -70,10 +70,10 @@ export const getChannelsByName = async(req, res, next) => {
 export const createChannel = async (req, res, next) => {
     try{
         const {name, description} = req.body;
-        const owner = req.user.id
-        const channel = await Channel.findOne({owner: owner})
+        const user = req.user.id
+        const channel = await Channel.findOne({user: user})
         if(channel) throw createError.BadRequest("Channel already exist for the user.")
-        const createdChannel = await new Channel({owner, name, description}).save()
+        const createdChannel = await new Channel({user, name, description}).save()
         res.status(201).json({
             success: true,
             message: "Channel created successfully",

@@ -15,6 +15,7 @@ const transporter = createTransport({
     }
 })
 
+
 class MailSender{
     constructor(to, subject, text){
         this.to = to

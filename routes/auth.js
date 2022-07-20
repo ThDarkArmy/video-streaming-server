@@ -5,7 +5,7 @@ import { register, login, verifyAccount, forgotPassword, resetPassword, verifyPa
 
 const router = Router()
 
-router.post("/register", registerValidation, validator, register);
+router.post("/signup", registerValidation, validator, register);
 router.post("/login", loginValidation, validator, login);
 router.get("/verify/:verificationCode",verifyAccount);
 router.post("/forgotPassword", forgotPassword);

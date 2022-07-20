@@ -8,14 +8,17 @@ import { BASE_URL} from "../constants";
 // register user
 export const register = async (req, res, next) => {
     try{
-        const { name, email, password, roles } = req.body;
+        
+        const { fullName, email, password, roles } = req.body;
         let user = await User.findOne({email:email})
 
-        if(user && user.verified) throw createError.BadRequest("Email already exists")
+        if(user && user.verified){
+            throw new createError.BadRequest("Email already exists")
+        } 
         else if(user) await User.deleteMany({email: user.email})
 
         user = new User({
-            name,
+            fullName,
             email,
             password,
             roles:roles?roles:["USER"],
@@ -45,7 +48,7 @@ export const register = async (req, res, next) => {
 export const verifyAccount = async (req, res, next)=>{
     try{
         let user = await User.findOne({verificationCode: req.params.verificationCode})
-        console.log("in auth verification")
+       
 
         if(!user) throw createError.BadRequest("Invalid verification code, user not found.")
 

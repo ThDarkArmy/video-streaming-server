@@ -8,7 +8,7 @@ import fs from 'fs'
 
 
 const UserSchema = new Schema({
-    name: {
+    fullName: {
         type: String,
         required: true
     },
@@ -90,7 +90,6 @@ UserSchema.methods.generateJwt = async function(){
         audience: this._id.toString(),
         algorithm: 'RS256'
     }
-
 
     return sign(payload, PRIV_KEY, options)
 }
