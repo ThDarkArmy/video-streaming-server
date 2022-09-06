@@ -80,13 +80,13 @@ UserSchema.methods.generateJwt = async function(){
     console.log("SECRET", SECRET)
     let payload = {
         id: this._id,
-        name: this.name,
+        name: this.fullName,
         email: this.email,
         roles: this.roles,
     }
     const options = {
         expiresIn: '200h',
-        issuer: this.name,
+        issuer: this.fullName,
         audience: this._id.toString(),
         algorithm: 'RS256'
     }
@@ -100,7 +100,7 @@ UserSchema.methods.generatePasswordResetToken = function(){
 }
 
 UserSchema.methods.getUserInfo = function(){
-    return pick(this, ["_id", "name", "email", "roles"])
+    return pick(this, ["_id", "fullName", "email", "roles", "channel"])
 }
 
 

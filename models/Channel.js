@@ -1,45 +1,76 @@
-import { Schema, model} from "mongoose";
+import { Schema, model } from "mongoose";
 
-const channelSchema = new Schema({
+const channelSchema = new Schema(
+  {
     name: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
+    },
+    views: {
+        type: String, 
+        default: 0 
+    },
+    description: {
+      type: String,
+      default: "",
     },
 
-    description: {
-        type: String,
-        default: ""
+    email: {
+      type: String,
+      default: "",
+    },
+
+    location: {
+      type: String,
+      default: "",
     },
 
     backgroundImagePath: {
-        type: String,
-        default: process.env.defaultImagePath
+      type: String,
+      default: process.env.defaultImagePath,
+    },
+
+    bannerImagePath: {
+      type: String,
+      default: process.env.defaultImagePath,
     },
     numberOfSubscribers: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
+    links: [
+      {
+        title: String,
+        url: String,
+      },
+    ],
     user: {
-        type: Schema.Types.ObjectId,
-        ref: "User"
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
 
-    playlists: [{
+    playlists: [
+      {
         type: Schema.Types.ObjectId,
-        ref:'Playlist'
-    }],
+        ref: "Playlist",
+      },
+    ],
 
-    videos: [{
+    videos: [
+      {
         type: Schema.Types.ObjectId,
-        ref: "Video"
-    }],
+        ref: "Video",
+      },
+    ],
 
-    subscription: [{
+    subscription: [
+      {
         type: Schema.Types.ObjectId,
-        ref: "Subscription"
-    }]
+        ref: "Subscription",
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-}, {timestamps: true})
-
-
-export default model("Channel", channelSchema)
+export default model("Channel", channelSchema);

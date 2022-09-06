@@ -28,16 +28,16 @@ const router = Router();
 router.get(["/", "/all"], getAllVideos);
 
 // get a specific video by id
-router.get("/byId/:id", getVideoById);
+router.get("/by-id/:id", getVideoById);
 
 // get videos by channel
-router.get("/byChannel/:id", getAllVideosByChannel);
+router.get("/by-channel/:id", getAllVideosByChannel);
 
 // get videos by playlist
-router.get("/byPlaylist/:id", getAllVideosByPlaylist);
+router.get("/by-playlist/:id", getAllVideosByPlaylist);
 
 // get videos by category
-router.get("/byCategory/:category", getAllVideosByCategory);
+router.get("/by-category/:category", getAllVideosByCategory);
 
 // upload video to server
 router.post(

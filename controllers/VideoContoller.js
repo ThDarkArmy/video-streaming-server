@@ -19,7 +19,7 @@ import Playlist from "../models/Playlist";
 // get all videos, only for admins and super admins
 export const getAllVideos = async (req, res, next) => {
   try {
-    const videos = await Video.find({}).select("-__v");
+    const videos = await Video.find({}).select("-__v").populate("channel").exec();
     res.status(200).json({success: true, message: "All Videos",body: videos });
   } catch (error) {
     next(error);
@@ -29,11 +29,11 @@ export const getAllVideos = async (req, res, next) => {
 // get all videos by channel
 export const getAllVideosByChannel = async (req, res, next) => {
   try {
-    const videos = await Video.find({ channel: req.params.id });
+    const videos = await Video.find({ channel: req.params.id }).populate("channel");
     res.status(200).json({
       success: true,
       message: "Videos on this channel",
-      videos: videos,
+      body: videos,
     });
   } catch (error) {
     next(error);
@@ -47,7 +47,7 @@ export const getAllVideosByPlaylist = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Videos in this playlist",
-      videos: videos,
+      body: videos,
     });
   } catch (error) {
     next(error);
@@ -74,7 +74,7 @@ export const getAllVideosBySearchQuery = (req, res, next) => {};
 // get a video by id, only for admins and super admins
 export const getVideoById = async (req, res, next) => {
   try {
-    const video = await Video.findById(req.params.id).select("-__v");
+    const video = await Video.findById(req.params.id).select("-__v").populate("channel");
     res.status(200).json({
       success: true,
       message: "Video",
