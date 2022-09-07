@@ -92,15 +92,16 @@ export const createChannel = async (req, res, next) => {
 // update the name of the channel
 export const updateChannel = async (req, res, next) => {
     try{
-        const { name, description, location} = req.body;
-        let channel = await Channel.findOne({owner: req.user._id})
-
+        const { name, description, location, email} = req.body;
+        let channel = await Channel.findOne({user: req.user.id})
+        
         if(!channel) throw createError.NotFound("Channel with given id does not exist.")
         channel.name = name;
         channel.description = description;
         channel.location = location;
+        channel.email = email;
         const updatedChannel = await channel.save()
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "Channel updated successfully.",
             body: updatedChannel

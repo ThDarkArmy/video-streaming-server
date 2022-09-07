@@ -19,7 +19,7 @@ router.get('/myChannel',AuthenticateUser, getMyChannel)
 router.get('/byName/:name', getChannelsByName)
 router.get("/byId/:id", AuthenticateUser, assertRole(['ADMIN', 'SUPERADMIN', 'USER']), getChannelById)
 router.post('/',AuthenticateUser, assertRole(['USER']), channelValidation, ValidationMiddleware, createChannel)
-router.put("/",AuthenticateUser, assertRole(['USER']), channelValidation, ValidationMiddleware, updateChannel)
+router.put("/",AuthenticateUser, assertRole(['USER']), updateChannel)
 router.delete("/", AuthenticateUser, assertRole(['USER']),  deleteChannel)
 router.delete("/all", AuthenticateUser, assertRole(['SUPERADMIN']), deleteAllChannels)
 
