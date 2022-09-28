@@ -89,8 +89,10 @@ export const getVideoById = async (req, res, next) => {
 // uploading a video
 export const uploadVideo = async (req, res, next) => {
   try {
-    const { title, description, category, subcategories, tags, playlist } =
+    const { title, description, category, tags, playlist } =
       req.body;
+
+      console.log("Uploading video", req.body);
 
     const channel = await Channel.findOne({ user: req.user.id });
 
@@ -99,7 +101,9 @@ export const uploadVideo = async (req, res, next) => {
     let playlistModel = null;
     if (playlist) {
       playlistModel = await Playlist.findById(playlist);
-      if (!playlistModel) throw createError.NotFound("Playlist not found.");
+      // if (!playlistModel) throw createError.NotFound("Playlist not found.");
+    }else{
+      playlistModel = await Playlist.findOne({name: "Default Playlist", channel: channel._id});
     }
 
     const videoPath = VIDEO_FILE_UPLOAD_PATH + req.file.filename;
@@ -121,21 +125,20 @@ export const uploadVideo = async (req, res, next) => {
       title,
       description,
       category,
-      subcategories,
       tags,
       channel: channel._id,
       videoPath,
       thumbnailPath,
       thumbnailStreamingPath: BASE_URL + "/" + THUMBNAIL_FILE_UPLOAD_PATH+"/"+thumbnailFileName,
       duration,
-      playlist: playlistModel ? playlist : null,
+      playlist: playlistModel._id,
       size: (size / (1024 * 1024)).toFixed(2),
       mimeType: req.file.mimetype,
     });
 
     video.videoStreamingPath = BASE_URL + "/videostream/" + video._id;
 
-    const savedVideo = await video.save();
+    const uploadedVideo = await video.save();
 
     channel.videos.push(video._id);
     await channel.save()
@@ -148,7 +151,7 @@ export const uploadVideo = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Video uploaded successfully",
-      body: savedVideo,
+      body: uploadedVideo,
     });
   } catch (err) {
     next(err);

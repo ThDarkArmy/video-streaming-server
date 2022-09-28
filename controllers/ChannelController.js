@@ -2,6 +2,7 @@ import createError from 'http-errors'
 import Channel from '../models/Channel'
 import Video from "../models/Video";
 import User from '../models/User';
+import Playlist from '../models/Playlist';
 
 // only for admins
 export const getAllChannels = async(req, res, next) => {
@@ -72,12 +73,15 @@ export const getChannelsByName = async(req, res, next) => {
 // create a channel
 export const createChannel = async (req, res, next) => {
     try{
+        console.log("Request body: ", req.body);
         const {name, description, location, links, email} = req.body;
         const user = req.user.id
         const channel = await Channel.findOne({user: user})
         if(channel) throw createError.BadRequest("Channel already exist for the user.")
         const createdChannel = await new Channel({user, name, description, location, links, email}).save()
         await User.findByIdAndUpdate(req.user.id, {$set: {"channel": createdChannel._id}}, {new: true});
+
+        await new Playlist({name: "Default Playlist", channel: createdChannel._id}).save();
 
         res.status(201).json({
             success: true,
@@ -115,11 +119,12 @@ export const updateChannel = async (req, res, next) => {
 // delete my channel
 export const deleteChannel = async (req, res, next)=>{
     try{
-        const channel = await Channel.findOne({owner: req.user._id})
-        console.log(channel)
-        if(!channel) throw createError.NotFound("Channel with given id does not exist.")
-        const deletedVideos = await Video.deleteMany({channel: channel._id})
-        const deletedChannel = await Channel.findByIdAndDelete(channel._id)
+        const channel = await Channel.findOne({user: req.user.id});
+        if(!channel) throw createError.NotFound("Channel with given id does not exist.");
+        const deletedVideos = await Video.deleteMany({channel: channel._id});
+        const deletedChannel = await Channel.findByIdAndDelete(channel._id);
+
+        await User.findByIdAndUpdate(req.user.id, {$set: {channel: null}}, {new: true});
 
         res.status(201).json({
             success: true,

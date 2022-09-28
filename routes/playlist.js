@@ -14,7 +14,7 @@ import {
 const router = Router()
 
 router.get("/byId/:id", getPlaylistById)
-router.get("/:id", getAllPlaylistByChannel)
+router.get("/byChannel/:id", getAllPlaylistByChannel)
 router.post("/",AuthenticateUser, createPlaylist)
 router.put("/:id",AuthenticateUser, updatePlaylist)
 router.post("/addVideo",AuthenticateUser, addVideoToPlaylist)
