@@ -6,7 +6,7 @@ import JWT from 'jsonwebtoken'
 import fs from 'fs'
 
 
-const PUB_KEY = fs.readFileSync("\D:\\Node Js\\VideoStreamingServer\\crypto\\id_rsa_pub.pem", 'utf8')
+const PUB_KEY = fs.readFileSync("\D:\\SUP\\Video Streaming\\video-streaming-server\\crypto\\id_rsa_pub.pem", 'utf8')
 
 const options = {
     secretOrKey: "secret",

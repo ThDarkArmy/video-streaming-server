@@ -37,7 +37,7 @@ app.get("/", (req, res, next) => {
   }
 });
 
-// routes
+// rou
 import videos from "./routes/videos";
 import videostream from "./routes/videostream";
 import users from "./routes/users";

@@ -19,7 +19,6 @@ const videoSchema = new Schema({
 
     subcategories: [{
         type: String,
-        
     }],
 
     tags:[{
@@ -72,6 +71,8 @@ const videoSchema = new Schema({
     }
 
 }, {timestamps: true})
+
+videoSchema.index({ title: 'text', description: 'text', category: 'text', subcategories:'text', tags: 'text' });
 
 const Video = model('Video', videoSchema)
 

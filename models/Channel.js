@@ -44,6 +44,7 @@ const channelSchema = new Schema(
         url: String,
       },
     ],
+    // owner
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -72,5 +73,7 @@ const channelSchema = new Schema(
   },
   { timestamps: true }
 );
+
+channelSchema.index({ name: "text", description: "text" });
 
 export default model("Channel", channelSchema);

@@ -1,7 +1,7 @@
 import { MONGODB_URI } from '../constants'
 const mongoose = require('mongoose')
 
-mongoose.connect(MONGODB_URI, {
+mongoose.connect("mongodb://localhost:27017/videostreamingserverdb", {
     useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,

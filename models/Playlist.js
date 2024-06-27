@@ -1,22 +1,24 @@
-const mongoose = require('mongoose')
+import {Schema, model} from 'mongoose';
 
-const playlistSchema = new mongoose.Schema({
+const playlistSchema = new Schema({
     name: {
         type: String,
         required: true
     },
 
     channel: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Channel'
     },
 
     videos: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Video'
     }]
 }, {timestamps: true})
 
-const Playlist = mongoose.model('Playlist', playlistSchema)
+playlistSchema.index({name: 'text'})
 
-module.exports = Playlist;
+const Playlist = model('Playlist', playlistSchema)
+
+export default Playlist;

@@ -16,6 +16,7 @@ const {
   deleteVideo,
   deleteAllVideos,
   uploadVideo,
+  getAllVideosTitleBySearchQuery,
 } = require("../controllers/VideoContoller");
 
 
@@ -38,6 +39,12 @@ router.get("/by-playlist/:id", getAllVideosByPlaylist);
 
 // get videos by category
 router.get("/by-category/:category", getAllVideosByCategory);
+
+// get videos by search query
+router.get("/by-search-query", getAllVideosBySearchQuery);
+
+// get videos by search query
+router.get("/title-by-search-query", getAllVideosTitleBySearchQuery);
 
 // upload video to server
 router.post(

@@ -69,7 +69,38 @@ export const getAllVideosByCategory = async (req, res, next) => {
 };
 
 // get all videos by search query
-export const getAllVideosBySearchQuery = (req, res, next) => {};
+export const getAllVideosBySearchQuery = async (req, res, next) => {
+  try {
+    const searchString = req.query.search;
+    const videos = await Video.find({$text: {$search: searchString}})
+    // .project({score: {$meta: "textScore"}})
+    .select("-__v").populate("channel");
+    res.status(200).json({
+      success: true,
+      message: `Videos fetched successfully with search query ${searchString}`,
+      body: videos,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// get all videos by search query
+export const getAllVideosTitleBySearchQuery = async (req, res, next) => {
+  try {
+    const searchString = req.query.search;
+    const videos = await Video.find({$text: {$search: searchString}})
+    // .project({score: {$meta: "textScore"}})
+    .select("title");
+    res.status(200).json({
+      success: true,
+      message: `Video titles fetched successfully with search query ${searchString}`,
+      body: videos,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // get a video by id, only for admins and super admins
 export const getVideoById = async (req, res, next) => {
@@ -89,11 +120,7 @@ export const getVideoById = async (req, res, next) => {
 // uploading a video
 export const uploadVideo = async (req, res, next) => {
   try {
-    const { title, description, category, tags, playlist } =
-      req.body;
-
-      console.log("Uploading video", req.body);
-
+    const { title, description, category, tags, playlist } = req.body;
     const channel = await Channel.findOne({ user: req.user.id });
 
     if (!channel) throw createError.NotFound("Channel does not exist.");
@@ -101,7 +128,6 @@ export const uploadVideo = async (req, res, next) => {
     let playlistModel = null;
     if (playlist) {
       playlistModel = await Playlist.findById(playlist);
-      // if (!playlistModel) throw createError.NotFound("Playlist not found.");
     }else{
       playlistModel = await Playlist.findOne({name: "Default Playlist", channel: channel._id});
     }
@@ -148,7 +174,7 @@ export const uploadVideo = async (req, res, next) => {
       await playlistModel.save();
     }
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Video uploaded successfully",
       body: uploadedVideo,

@@ -75,7 +75,7 @@ UserSchema.methods.comparePassword = async function(password){
 }
 
 UserSchema.methods.generateJwt = async function(){
-    const PRIV_KEY = fs.readFileSync("\D:\\Node Js\\VideoStreamingServer\\crypto\\id_rsa_priv.pem", 'utf8')
+    const PRIV_KEY = fs.readFileSync("D:\\SUP\\Video Streaming\\video-streaming-server\\crypto\\id_rsa_priv.pem", 'utf8')
 
     console.log("SECRET", SECRET)
     let payload = {
